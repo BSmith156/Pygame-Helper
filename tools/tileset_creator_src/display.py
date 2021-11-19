@@ -1,5 +1,7 @@
 import pygame
 
+from helpers.pixels import get_pixel
+
 class Display():
     def __init__(self, screen):
         self._screen = screen
@@ -8,6 +10,7 @@ class Display():
         self._zoom = 1
         self._right_click = False
         self._last_right = None
+        self._box_top_left = None
 
     @property
     def offset(self):
@@ -29,23 +32,37 @@ class Display():
         else:
             self._display_image = self._image.copy().convert()
             self._display_image.set_colorkey(new_colorkey)
+        self._set_zoomed_image()
 
     def reset_zoom(self):
         x_scale = self._screen.get_width() / self._image.get_width()
         y_scale = self._screen.get_height() / self._image.get_height()
-        self._zoom = round(min(x_scale, y_scale), 1)
-        self._zoom = max(self._zoom, 0.1)
+        self._zoom = round(min(x_scale, y_scale))
+        self._zoom = max(self._zoom, 1)
+        self._set_zoomed_image()
+
+    def _set_zoomed_image(self):
+        self._zoomed_image = pygame.transform.scale(self._display_image,
+                             (self._image.get_width() * self._zoom,
+                             self._image.get_height() * self._zoom))
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 3:
+            if event.button == 1:
+                self._right_click = False
+                self._box_top_left = get_pixel(pygame.mouse.get_pos(), self._offset, self._zoom)
+            if event.button == 3 and self._box_top_left is None:
                 self._right_click = True
             elif event.button == 4:
-                self._zoom = round(self._zoom + 0.1, 1)
+                self._zoom = round(self._zoom + 1)
+                self._set_zoomed_image()
             elif event.button == 5:
-                self._zoom = round(self._zoom - 0.1, 1)
-                self._zoom = max(self._zoom, 0.1)
+                self._zoom = round(self._zoom - 1)
+                self._zoom = max(self._zoom, 1)
+                self._set_zoomed_image()
         elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1 and self._box_top_left is not None:
+                self._box_top_left = None
             if event.button == 3:
                 self._right_click = False
 
@@ -68,10 +85,20 @@ class Display():
         if self._path is not options_frame.current_path:
             self._path = options_frame.current_path
             self._image = pygame.image.load(self._path)
+            self.colorkey = None
             self.reset_zoom()
             self._offset = [0, 0]
-            self.colorkey = None
         if self._path != "":
-            self._screen.blit(pygame.transform.scale(self._display_image,
-                             (self._image.get_width() * self._zoom,
-                             self._image.get_height() * self._zoom)), self._offset)
+            self._screen.blit(self._zoomed_image, self._offset)
+        
+        if self._box_top_left is not None:
+            current_pos = get_pixel(pygame.mouse.get_pos(), self._offset, self._zoom)
+            x_pos = min(self._box_top_left[0], current_pos[0])
+            y_pos = min(self._box_top_left[1], current_pos[1])
+            width = abs(self._box_top_left[0] - current_pos[0]) + 1
+            height = abs(self._box_top_left[1] - current_pos[1]) + 1
+            box = pygame.Surface((width * self._zoom, height * self._zoom))
+            box.fill((25, 25, 25))
+            self._screen.blit(box, (x_pos * self._zoom + self._offset[0],
+                                    y_pos * self._zoom + self._offset[1]),
+                                    special_flags = pygame.BLEND_ADD)
