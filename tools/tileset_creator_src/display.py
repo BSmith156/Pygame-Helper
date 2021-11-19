@@ -49,8 +49,13 @@ class Display():
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                self._right_click = False
-                self._box_top_left = get_pixel(pygame.mouse.get_pos(), self._offset, self._zoom)
+                if self._path != "":
+                    self._right_click = False
+                    self._box_top_left = get_pixel(pygame.mouse.get_pos(), self._offset, self._zoom)
+                    if self._box_top_left[0] < 0 or self._box_top_left[1] < 0:
+                        self._box_top_left = None
+                    elif self._box_top_left[0] >= self._image.get_width() or self._box_top_left[1] >= self._image.get_height():
+                        self._box_top_left = None
             if event.button == 3 and self._box_top_left is None:
                 self._right_click = True
             elif event.button == 4:
@@ -93,6 +98,8 @@ class Display():
         
         if self._box_top_left is not None:
             current_pos = get_pixel(pygame.mouse.get_pos(), self._offset, self._zoom)
+            current_pos = (max(min(current_pos[0], self._image.get_width() - 1), 0),
+                           max(min(current_pos[1], self._image.get_height() - 1), 0))
             x_pos = min(self._box_top_left[0], current_pos[0])
             y_pos = min(self._box_top_left[1], current_pos[1])
             width = abs(self._box_top_left[0] - current_pos[0]) + 1
