@@ -25,10 +25,10 @@ class Display():
     def colorkey(self, new_colorkey):
         self._colorkey = new_colorkey
         if new_colorkey is None:
-            self._image = self._image.convert_alpha()
+            self._display_image = self._image.copy().convert_alpha()
         else:
-            self._image = self._image.convert()
-            self._image.set_colorkey(new_colorkey)
+            self._display_image = self._image.copy().convert()
+            self._display_image.set_colorkey(new_colorkey)
 
     def reset_zoom(self):
         x_scale = self._screen.get_width() / self._image.get_width()
@@ -72,6 +72,6 @@ class Display():
             self._offset = [0, 0]
             self.colorkey = None
         if self._path != "":
-            self._screen.blit(pygame.transform.scale(self._image,
+            self._screen.blit(pygame.transform.scale(self._display_image,
                              (self._image.get_width() * self._zoom,
                              self._image.get_height() * self._zoom)), self._offset)
