@@ -2,19 +2,18 @@ import sys
 import tkinter as tk
 import pygame
 
-from tileset_creator_src.options_frame import OptionsFrame
-from tileset_creator_src.display import Display
-from tileset_creator_src.file_manager import FileManager
+from tileset_creator.options_manager import OptionsManager
+from tileset_creator.display_manager import DisplayManager
+from tileset_creator.file_manager import FileManager
 
 pygame.init()
 pygame.display.set_caption("Tileset Creator")
 screen = pygame.display.set_mode((640, 640), pygame.RESIZABLE)
-display = Display(screen)
-
-file_manager = FileManager()
-
 window = tk.Tk()
-options = OptionsFrame(window, display, file_manager)
+
+display = DisplayManager(screen)
+file_manager = FileManager()
+options = OptionsManager(window, display, file_manager)
 display.options = options
 
 def check_saved():
@@ -29,7 +28,7 @@ while True:
                 pygame.quit()
                 sys.exit()
         else:
-            display.handle_event(event)
+            display.handle_event(event, options)
     display.update(options)
     pygame.display.update()
     try:
