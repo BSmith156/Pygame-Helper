@@ -12,7 +12,7 @@ class FileManager():
             self.unsaved = False
         except FileNotFoundError:
             self.data = {"colorkey": False, "tiles": []}
-            self.unsaved = True
+            self.unsaved = False
 
     def save_data(self, path):
         with open(path, 'w', encoding = "utf-8") as config_file:

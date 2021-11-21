@@ -10,6 +10,8 @@ class DisplayManager():
     def __init__(self, surf):
         self.surf = surf
         self.img = None
+        self.showing_tile = False
+        self.selection_offset = [0, 0]
         self.dragging = False
         self.mouse_prev = None
         self.select_start = None
@@ -20,12 +22,32 @@ class DisplayManager():
         self.offset = [0, 0]
         self.reset_zoom()
 
+    def show_tile(self, rect):
+        if not self.showing_tile:
+            self.prev_img = self.img
+        self.showing_tile = True
+        self.selection_offset = [rect[0], rect[1]]
+        self.img = self.prev_img.subsurface(rect)
+        self.set_colorkey(self.colorkey, False)
+        self.offset = [0, 0]
+        self.reset_zoom()
+        self.select_start = None
+
+    def unshow_tile(self):
+        self.showing_tile = False
+        self.selection_offset = [0, 0]
+        self.img = self.prev_img
+        self.set_colorkey(self.colorkey, False)
+        self.offset = [0, 0]
+        self.reset_zoom()
+
     def set_colorkey(self, colorkey, update_zoom = True):
         if colorkey is None:
             self.colorkey_img = self.img.convert_alpha()
         else:
             self.colorkey_img = self.img.convert()
             self.colorkey_img.set_colorkey(colorkey)
+        self.colorkey = colorkey
         if update_zoom:
             self.update_zoom()
 
@@ -69,7 +91,9 @@ class DisplayManager():
 
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1 and self.select_start is not None:
-                options_manager.selection(self.selection)
+                options_manager.selection([self.selection[0] + self.selection_offset[0],
+                                           self.selection[1] + self.selection_offset[1],
+                                           self.selection[2], self.selection[3]])
                 self.select_start = None
 
             if event.button == 3:

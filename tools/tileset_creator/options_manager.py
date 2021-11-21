@@ -28,7 +28,7 @@ class OptionsManager(tk.Frame):
 
         self.colorkey_frame = ColorkeyFrame(self, display_manager, file_manager)
 
-        self.tiles_frame = TilesFrame(self)
+        self.tiles_frame = TilesFrame(self, display_manager, file_manager)
 
         self.current_path = ""
         self.is_dark_bg = True
@@ -100,6 +100,8 @@ class OptionsManager(tk.Frame):
             self.file_manager.data["tiles"].sort()
             self.file_manager.unsaved = True
             self.tiles_frame.update(self.file_manager.data["tiles"])
+            if self.tiles_frame.clicked_tile == tile_name:
+                self.display_manager.show_tile(list(selection))
 
     def check_saved(self):
         if self.file_manager.unsaved:
