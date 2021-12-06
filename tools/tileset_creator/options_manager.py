@@ -11,7 +11,7 @@ from tileset_creator.tiles_frame import TilesFrame
 
 class OptionsManager(tk.Frame):
     def __init__(self, master, display_manager, file_manager):
-        super().__init__(master)
+        super().__init__(master, bg = "#333333")
         self.master = master
         self.display_manager = display_manager
         self.file_manager = file_manager
@@ -47,6 +47,7 @@ class OptionsManager(tk.Frame):
             self.file_manager.load_data(name)
 
             self.colorkey_frame.checkbox.config(state = tk.NORMAL)
+            self.colorkey_frame.checkbox_label.config(fg = "#e8e8e8")
             if not self.file_manager.data["colorkey"]:
                 self.colorkey_frame.checkbox.deselect()
                 self.display_manager.set_colorkey(None)
