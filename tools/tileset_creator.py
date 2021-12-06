@@ -1,3 +1,4 @@
+import os
 import sys
 import tkinter as tk
 import pygame
@@ -8,8 +9,11 @@ from tileset_creator.file_manager import FileManager
 
 pygame.init()
 pygame.display.set_caption("Tileset Creator")
+icon_path = os.path.join(os.path.dirname(__file__), "tileset_creator/icon.png")
+pygame.display.set_icon(pygame.image.load(icon_path))
 screen = pygame.display.set_mode((640, 640), pygame.RESIZABLE)
 window = tk.Tk()
+window.tk.call('wm', 'iconphoto', window._w, tk.PhotoImage(file = icon_path))
 
 display = DisplayManager(screen)
 file_manager = FileManager()
