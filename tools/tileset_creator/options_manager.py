@@ -74,6 +74,8 @@ class OptionsManager(tk.Frame):
         self.is_dark_bg = not self.is_dark_bg
 
     def exit(self):
+        if not self.check_saved():
+            return
         self.master.destroy()
 
     def selection(self, selection):
