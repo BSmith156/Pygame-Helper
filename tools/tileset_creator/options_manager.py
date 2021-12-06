@@ -89,6 +89,7 @@ class OptionsManager(tk.Frame):
             cont = False
             for tile in self.file_manager.data["tiles"]:
                 if tile_name == tile[0]:
+                    msg = "New tile name:"
                     if not messagebox.askyesno("Tile Already Exists!", "Overwrite tile?"):
                         cont = True
                     else:
